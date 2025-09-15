@@ -16,7 +16,6 @@ interface TripPlannerFormProps {
 
 export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
   const [destination, setDestination] = useState('');
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [budget, setBudget] = useState([1000]);
@@ -34,7 +33,6 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
   };
 
   const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
-    setSelectedPlace(place);
     // Use the formatted address or name as the destination
     const placeName = place.formatted_address || place.name || '';
     setDestination(placeName);

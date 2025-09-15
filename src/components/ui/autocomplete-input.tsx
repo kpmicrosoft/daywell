@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import { Input } from "./input";
-import { cn } from "./utils";
 
 const libraries: "places"[] = ["places"];
 
@@ -15,7 +14,7 @@ interface AutocompleteInputProps extends React.ComponentProps<"input"> {
 export function AutocompleteInput({ 
   onPlaceSelect, 
   className, 
-  placeholder = "Enter a location...",
+  placeholder = "Enter destination, address, or landmark...",
   value,
   onChange,
   ...props 
@@ -71,8 +70,10 @@ export function AutocompleteInput({
       onLoad={onLoad}
       onPlaceChanged={onPlaceChanged}
       options={{
-        types: ["(cities)"], // Restrict to cities, you can customize this
-        componentRestrictions: { country: [] }, // Remove country restriction or set specific countries
+        // Allow all types of places for maximum flexibility
+        // This includes cities, regions, countries, addresses, businesses, landmarks, etc.
+        types: [], // Empty array means no restrictions - shows all place types
+        componentRestrictions: { country: [] }, // Allow all countries
       }}
     >
       <Input
