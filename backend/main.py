@@ -1,8 +1,6 @@
 
 # New endpoint: POST /openai-chat
 from fastapi import Body
-# Custom Bearer Token Credential for Azure authentication
-from azure.core.credentials import AccessToken
 # New endpoint: POST /azure-agent
 from fastapi import HTTPException
 from fastapi import FastAPI
