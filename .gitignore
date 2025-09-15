@@ -48,3 +48,9 @@ frontend/*.ntvs*
 frontend/*.njsproj
 frontend/*.sln
 frontend/*.sw?
+
+
+backend/__pycache__
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
