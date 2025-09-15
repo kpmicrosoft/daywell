@@ -1,5 +1,5 @@
 import { Button } from './ui/button';
-import { MapPin, PlaneTakeoff, Calendar, User } from 'lucide-react';
+import { PlaneTakeoff, Calendar, User } from 'lucide-react';
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -14,7 +14,7 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
       <div className="flex items-center justify-around py-2 px-4 max-w-md mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
