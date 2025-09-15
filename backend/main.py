@@ -1,3 +1,4 @@
+
 # New endpoint: POST /openai-chat
 from fastapi import Body
 # Custom Bearer Token Credential for Azure authentication
@@ -12,6 +13,32 @@ from pydantic import BaseModel
 
 
 app = FastAPI()
+
+# New endpoint: GET /family
+from fastapi import Query
+
+@app.get("/family", summary="Get Family Members for Member", description="Returns the other family members for a given member ID.")
+def get_family(member_id: int = Query(..., description="The ID of the family member (1-based index).")):
+    """
+    Returns the other family members for a given member ID.
+    """
+    family = [
+        {"id": 1, "full_name": "Alice Smith", "relationship": "Parent"},
+        {"id": 2, "full_name": "Bob Smith", "relationship": "Parent"},
+        {"id": 3, "full_name": "Charlie Smith", "relationship": "Child"},
+        {"id": 4, "full_name": "Daisy Smith", "relationship": "Child"}
+    ]
+    member = next((m for m in family if m["id"] == member_id), None)
+    if member:
+        other_members = [m for m in family if m["id"] != member_id]
+        return {
+            "member_id": member["id"],
+            "full_name": member["full_name"],
+            "relationship": member["relationship"],
+            "family_members": other_members
+        }
+    else:
+        return {"error": f"No family member found with id {member_id}"}
 
 @app.post("/openai-chat", summary="Azure OpenAI Chat", description="Get a chat completion from Azure OpenAI GPT-4.1.")
 def openai_chat(
