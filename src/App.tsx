@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { TripPlannerForm } from './components/trip-planner-form';
+import { EventsMap } from './components/events-map';
+import { ItineraryView } from './components/itinerary-view';
+import { ProfileView } from './components/profile-view';
+import { BottomNavigation } from './components/bottom-navigation';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [activeTab, setActiveTab] = useState('plan');
+  const [hasCreatedTrip, setHasCreatedTrip] = useState(false);
+
+  const handlePlanTrip = (tripData: any) => {
+    console.log('Trip planned:', tripData);
+    setHasCreatedTrip(true);
+    setActiveTab('itinerary');
+  };
+
+  const renderActiveView = () => {
+    switch (activeTab) {
+      case 'plan':
+        return <TripPlannerForm onPlanTrip={handlePlanTrip} />;
+      case 'itinerary':
+        return <ItineraryView />;
+      case 'profile':
+        return <ProfileView />;
+      default:
+        return <TripPlannerForm onPlanTrip={handlePlanTrip} />;
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50">
+      {/* Main Content */}
+      <main className="pb-16">
+        {renderActiveView()}
+      </main>
 
-export default App
+      {/* Bottom Navigation */}
+      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+    </div>
+  );
+}
