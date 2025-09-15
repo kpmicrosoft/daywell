@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { AutocompleteInput } from './ui/autocomplete-input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -15,6 +16,7 @@ interface TripPlannerFormProps {
 
 export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
   const [destination, setDestination] = useState('');
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [budget, setBudget] = useState([1000]);
@@ -29,6 +31,13 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         ? prev.filter(a => a !== activity)
         : [...prev, activity]
     );
+  };
+
+  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+    setSelectedPlace(place);
+    // Use the formatted address or name as the destination
+    const placeName = place.formatted_address || place.name || '';
+    setDestination(placeName);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,10 +81,11 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
+            <AutocompleteInput
               placeholder="Where are you going?"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
+              onPlaceSelect={handlePlaceSelect}
               className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary text-gray-900"
             />
           </CardContent>
