@@ -26,6 +26,7 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
+          ls *
           python -m venv venv
           source venv/bin/activate
 
@@ -72,4 +73,5 @@ jobs:
         run: |
           sleep 30
           curl -f https://daywell-backend.azurewebsites.net/status || exit 1
+
 
