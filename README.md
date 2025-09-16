@@ -4,7 +4,7 @@
   ## Running the code
 
 ## Start the Frontend
-  ## Environment Variable:
+  **Environment Variable:
   Configure your environment:
   ```
   VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
