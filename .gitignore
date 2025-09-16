@@ -11,8 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
 .temp/*
+
+# Vite cache directories
+**/.vite/
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
 
 # Editor directories and files
 .vscode/*
@@ -56,3 +63,5 @@ backend/__pycache__
 backend/*.pyc
 backend/*.pyo
 backend/*.pyd
+
+**/venv/**
