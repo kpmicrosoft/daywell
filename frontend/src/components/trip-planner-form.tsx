@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { AutocompleteInput } from './ui/autocomplete-input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Slider } from './ui/slider';
@@ -73,6 +74,12 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
     );
   };
 
+  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+    // Use the formatted address or name as the destination
+    const placeName = place.formatted_address || place.name || '';
+    setDestination(placeName);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -131,10 +138,11 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
+            <AutocompleteInput
               placeholder="Where are you going?"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
+              onPlaceSelect={handlePlaceSelect}
               className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary text-gray-900"
             />
           </CardContent>

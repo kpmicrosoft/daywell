@@ -1,11 +1,14 @@
-
-
   # Daywell App
 
 
   ## Running the code
 
 ## Start the Frontend
+  ## Environment Variable:
+  Configure your environment:
+  ```
+  VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
+  ```
 
 1. Open a terminal and navigate to the `frontend` directory:
   ```sh
