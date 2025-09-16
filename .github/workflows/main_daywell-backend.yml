@@ -67,7 +67,7 @@ jobs:
         with:
           app-name: 'daywell-backend'
           slot-name: 'Production'
-          package: backend
+          package: .
 
       - name: 'Check backend health'
         run: |
