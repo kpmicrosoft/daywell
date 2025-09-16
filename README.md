@@ -1,17 +1,14 @@
-
-
   # Daywell App
 
 
+  ## Running the code
+
+## Start the Frontend
   ## Environment Variable:
   Configure your environment:
   ```
   VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
   ```
-
-  ## Running the code
-
-## Start the Frontend
 
 1. Open a terminal and navigate to the `frontend` directory:
   ```sh
@@ -45,3 +42,14 @@
   ```sh
   uvicorn main:app --reload
   ```
+
+
+  ## Testing the /plan Endpoint
+
+Here is a sample curl command to test the /plan endpoint:
+
+This will send a POST request with the required JSON body. You should receive a JSON response with the itinerary.
+
+```sh
+curl -X POST "http://localhost:8000/plan" -H "Content-Type: application/json" -d '{"destination": "Paris", "days": 3}'
+```
