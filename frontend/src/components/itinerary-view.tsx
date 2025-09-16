@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { useState, useCallback } from 'react';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -21,7 +21,7 @@ interface ItineraryDay {
   items: ItineraryItem[];
 }
 
-const libraries: "places"[] = ["places"];
+const libraries: ("places" | "marker")[] = ["places", "marker"];
 
 const mapContainerStyleExpanded = {
   width: '100%',
@@ -35,7 +35,10 @@ const center = {
 
 export function ItineraryView() {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
-  const [isMapExpanded, setIsMapExpanded] = useState(false); // Changed to false for collapsed by default
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
@@ -71,6 +74,13 @@ export function ItineraryView() {
       location: 'Downtown Area',
       category: 'Food',
       coordinates: { lat: 40.7505, lng: -73.9934 }
+    },
+    {
+      id: '5',
+      title: 'Times Square Experience',
+      location: 'Times Square',
+      category: 'Cultural',
+      coordinates: { lat: 40.7580, lng: -73.9855 }
     }
   ];
 
@@ -154,6 +164,53 @@ export function ItineraryView() {
     return colors[category as keyof typeof colors] || '#6b7280';
   };
 
+  // Handle map load and create markers using modern API
+  const onMapLoad = useCallback(async (map: google.maps.Map) => {
+    setMap(map);
+    
+    try {
+      // Import the marker library
+      const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+      
+      // Create info window
+      const infoWindowInstance = new google.maps.InfoWindow();
+      setInfoWindow(infoWindowInstance);
+      
+      // Create markers for each event
+      const newMarkers = events.map((event) => {
+        const marker = new AdvancedMarkerElement({
+          map,
+          position: event.coordinates,
+          title: event.title,
+        });
+        
+        // Add click listener
+        marker.addListener('click', () => {
+          setSelectedMarker(event.id);
+          infoWindowInstance.setContent(`
+            <div style="padding: 8px;">
+              <h4 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">${event.title}</h4>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${event.location}</p>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #999;">
+                Coordinates: ${event.coordinates.lat}, ${event.coordinates.lng}
+              </p>
+              <span style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                ${event.category}
+              </span>
+            </div>
+          `);
+          infoWindowInstance.open(map, marker);
+        });
+        
+        return marker;
+      });
+      
+      setMarkers(newMarkers);
+    } catch (error) {
+      console.error('Error loading markers:', error);
+    }
+  }, [events]);
+
   const getCategoryIcon = (category: string) => {
     const icons = {
       'Family': '👨‍👩‍👧‍👦',
@@ -202,73 +259,57 @@ export function ItineraryView() {
           {isMapExpanded && (
             <div className="relative bg-gradient-to-br from-green-100 to-blue-100 overflow-hidden h-96">
               {loadError && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-600">Error loading map</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 p-4">
+                  <p className="text-gray-600 text-center mb-4">Map could not load</p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>Fallback - Event Locations:</p>
+                    {events.map((event) => (
+                      <div key={event.id} className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: getCategoryMapColor(event.category) }}
+                        ></div>
+                        <span>{event.title}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               
               {!isLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-600">Loading map...</p>
+                  <div className="text-center">
+                    <p className="text-gray-600">Loading map...</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? 'API Key found' : 'No API Key - using fallback'}
+                    </p>
+                  </div>
                 </div>
               )}
               
               {isLoaded && (
                 <GoogleMap
                   mapContainerStyle={mapContainerStyleExpanded}
-                  zoom={14}
+                  zoom={12}
                   center={center}
+                  onLoad={onMapLoad}
                   options={{
-                    disableDefaultUI: true,
+                    disableDefaultUI: false,
                     zoomControl: true,
-                    styles: [
-                      {
-                        featureType: "poi",
-                        elementType: "labels",
-                        stylers: [{ visibility: "off" }]
-                      }
-                    ]
+                    mapTypeControl: true,
+                    mapId: 'daywell-trip-map', // Required for AdvancedMarkerElement
                   }}
                 >
-                  {/* Event markers */}
-                  {events.map((event) => (
-                    <Marker
-                      key={event.id}
-                      position={event.coordinates}
-                      onClick={() => setSelectedMarker(event.id)}
-                      icon={{
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: getCategoryMapColor(event.category),
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2,
-                      }}
-                    />
-                  ))}
-                  
-                  {/* Info Window */}
-                  {selectedMarker && (
-                    <InfoWindow
-                      position={events.find(e => e.id === selectedMarker)?.coordinates}
-                      onCloseClick={() => setSelectedMarker(null)}
-                    >
-                      <div className="p-2">
-                        <h4 className="font-semibold text-sm">{events.find(e => e.id === selectedMarker)?.title}</h4>
-                        <p className="text-xs text-gray-600">{events.find(e => e.id === selectedMarker)?.location}</p>
-                        <span className="text-xs px-2 py-1 rounded bg-gray-100 mt-1 inline-block">
-                          {events.find(e => e.id === selectedMarker)?.category}
-                        </span>
-                      </div>
-                    </InfoWindow>
-                  )}
+                  {/* Markers are now handled in onMapLoad with AdvancedMarkerElement */}
                 </GoogleMap>
               )}
               
               {/* Map legend */}
               <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg p-3 text-xs shadow-lg">
                 <div className="space-y-2">
-                  <div className="font-medium text-gray-700 mb-2">Categories</div>
+                  <div className="font-medium text-gray-700 mb-2">
+                    Categories ({events.length} locations)
+                  </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                     <span>Family</span>
@@ -284,6 +325,10 @@ export function ItineraryView() {
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                     <span>Food</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+                    <span>Cultural</span>
                   </div>
                 </div>
               </div>
