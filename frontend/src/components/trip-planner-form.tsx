@@ -197,9 +197,9 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
                         onClick={() => handleTravelerToggle(member.id)}
                         className="px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200 min-w-[120px] text-center"
                         style={{
-                          backgroundColor: isSelected ? '#2563eb' : '#ffffff',
+                          backgroundColor: isSelected ? '#03438C' : '#ffffff',
                           color: isSelected ? '#ffffff' : '#374151',
-                          borderColor: isSelected ? '#2563eb' : '#d1d5db'
+                          borderColor: isSelected ? '#03438C' : '#d1d5db'
                         }}
                       >
                         <p className="font-medium text-sm">{member.full_name}</p>
