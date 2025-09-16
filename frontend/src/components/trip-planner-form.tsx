@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AutocompleteInput } from './ui/autocomplete-input';
 import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Slider } from './ui/slider';
 import { Badge } from './ui/badge';
 import { MapPin, Calendar, DollarSign, Activity, MessageSquare, Users } from 'lucide-react';
 import { Textarea } from './ui/textarea';
+
+interface FamilyMember {
+  id: number;
+  full_name: string;
+  relationship: string;
+}
 
 interface TripPlannerFormProps {
   onPlanTrip: (tripData: any) => void;
@@ -20,9 +25,46 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
   const [endDate, setEndDate] = useState('');
   const [budget, setBudget] = useState([1000]);
   const [activityPreferences, setActivityPreferences] = useState<string[]>([]);
-  const [adults, setAdults] = useState('');
-  const [children, setChildren] = useState('');
+  const [selectedTravelers, setSelectedTravelers] = useState<number[]>([]);
   const [specialRequests, setSpecialRequests] = useState('');
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+
+  // Fetch family members on component mount
+  useEffect(() => {
+    const fetchFamilyMembers = async () => {
+      try {
+        // Assuming we're fetching for member ID 1 initially
+        const response = await fetch('http://localhost:8000/family?member_id=1');
+        const data = await response.json();
+        
+        if (data.family_members) {
+          setFamilyMembers([
+            {
+              id: data.member_id,
+              full_name: data.full_name,
+              relationship: data.relationship
+            },
+            ...data.family_members
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching family members:', error);
+      }
+    };
+
+    fetchFamilyMembers();
+  }, []);
+
+  const handleTravelerToggle = (memberId: number) => {
+    console.log('Toggling member:', memberId); // Debug log
+    setSelectedTravelers(prev => {
+      const newSelection = prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId];
+      console.log('New selection:', newSelection); // Debug log
+      return newSelection;
+    });
+  };
 
   const handleActivityToggle = (activity: string) => {
     setActivityPreferences(prev => 
@@ -40,14 +82,31 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Get selected family member details
+    const selectedFamilyMembers = familyMembers.filter(member => 
+      selectedTravelers.includes(member.id)
+    );
+    
+    // Separate adults and children
+    const adults = selectedFamilyMembers.filter(member => 
+      member.relationship === 'Parent' || member.relationship === 'Adult'
+    );
+    const children = selectedFamilyMembers.filter(member => 
+      member.relationship === 'Child'
+    );
+    
     const tripData = {
       destination,
       startDate,
       endDate,
       budget: budget[0],
       activityPreferences,
-      adults,
-      children,
+      travelers: selectedFamilyMembers,
+      adults: adults.map(a => a.full_name),
+      children: children.map(c => c.full_name),
+      adultsCount: adults.length,
+      childrenCount: children.length,
       specialRequests
     };
     onPlanTrip(tripData);
@@ -123,49 +182,46 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
           </CardContent>
         </Card>
 
-        {/* Travelers */}
+        {/* Travelers - Family Members */}
         <Card className="border border-primary/20 bg-white">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-white" />
               </div>
-              Travelers
+              Family Members
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="adults">Adults</Label>
-              <Select value={adults} onValueChange={setAdults}>
-                <SelectTrigger className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary">
-                  <SelectValue placeholder="Number of adults" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 Adult</SelectItem>
-                  <SelectItem value="2">2 Adults</SelectItem>
-                  <SelectItem value="3">3 Adults</SelectItem>
-                  <SelectItem value="4">4 Adults</SelectItem>
-                  <SelectItem value="5">5 Adults</SelectItem>
-                  <SelectItem value="6+">6+ Adults</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="children">Children</Label>
-              <Select value={children} onValueChange={setChildren}>
-                <SelectTrigger className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary">
-                  <SelectValue placeholder="Number of children" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">No Children</SelectItem>
-                  <SelectItem value="1">1 Child</SelectItem>
-                  <SelectItem value="2">2 Children</SelectItem>
-                  <SelectItem value="3">3 Children</SelectItem>
-                  <SelectItem value="4">4 Children</SelectItem>
-                  <SelectItem value="5+">5+ Children</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {familyMembers.length > 0 ? (
+              <div className="space-y-3">
+                <Label>Select travelers for this trip:</Label>
+                <div className="flex flex-wrap gap-3">
+                  {familyMembers.map((member) => {
+                    const isSelected = selectedTravelers.includes(member.id);
+                    return (
+                      <div
+                        key={member.id}
+                        onClick={() => handleTravelerToggle(member.id)}
+                        className="px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200 min-w-[120px] text-center"
+                        style={{
+                          backgroundColor: isSelected ? '#2563eb' : '#ffffff',
+                          color: isSelected ? '#ffffff' : '#374151',
+                          borderColor: isSelected ? '#2563eb' : '#d1d5db'
+                        }}
+                      >
+                        <p className="font-medium text-sm">{member.full_name}</p>
+                        <p className="text-xs mt-1" style={{ color: isSelected ? '#dbeafe' : '#6b7280' }}>
+                          {member.relationship}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">Loading family members...</p>
+            )}
           </CardContent>
         </Card>
 
@@ -265,7 +321,7 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         <Button 
           type="submit" 
           className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
-          disabled={!destination || !startDate || !endDate || !adults}
+          disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0}
         >
           Create My Itinerary
         </Button>

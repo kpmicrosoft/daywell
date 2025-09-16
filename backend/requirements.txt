@@ -1,2 +1,8 @@
 fastapi
 uvicorn
+
+# Azure AI SDK dependencies
+#azure-ai-projects
+#azure-identity
+#azure-ai-agents
+openai

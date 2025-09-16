@@ -1,0 +1,332 @@
+{
+  "trip": {
+    "destination": "New York City, NY, USA",
+    "duration": "3 days",
+    "family_members": [
+      {"name": "Parent 1", "age": 35},
+      {"name": "Parent 2", "age": 34},
+      {"name": "Child 1", "age": 8},
+      {"name": "Child 2", "age": 5}
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "date": "2025-09-20",
+        "activities": [
+          {
+            "id": "activity_1",
+            "type": "activity",
+            "title": "Central Park Visit",
+            "description": "Explore the famous Central Park with kids playground and lake",
+            "address": "Central Park, New York, NY 10024, USA",
+            "coordinates": { "lat": 40.7831, "lng": -73.9712 },
+            "estimated_duration": "2 hours",
+            "sequenced_time": {
+              "start": "09:00 AM",
+              "end": "11:00 AM"
+            },
+            "tags": ["outdoor", "family", "nature", "playground"]
+          },
+          {
+            "id": "activity_2",
+            "type": "activity",
+            "title": "American Museum of Natural History",
+            "description": "Interactive exhibits perfect for children and families",
+            "address": "200 Central Park West, New York, NY 10024, USA",
+            "coordinates": { "lat": 40.7813, "lng": -73.9740 },
+            "estimated_duration": "2.5 hours",
+            "sequenced_time": {
+              "start": "11:30 AM",
+              "end": "02:00 PM"
+            },
+            "tags": ["indoor", "educational", "museum", "family"]
+          },
+          {
+            "id": "meal_1",
+            "type": "meal",
+            "title": "Lunch at Jacob's Pickles",
+            "description": "Family-friendly restaurant with comfort food",
+            "address": "509 Amsterdam Ave, New York, NY 10024, USA",
+            "coordinates": { "lat": 40.7864, "lng": -73.9761 },
+            "estimated_duration": "1 hour",
+            "sequenced_time": {
+              "start": "02:15 PM",
+              "end": "03:15 PM"
+            },
+            "tags": ["food", "family-friendly", "american", "casual"]
+          },
+          {
+            "id": "activity_3",
+            "type": "activity",
+            "title": "Times Square Exploration",
+            "description": "Walk through the iconic Times Square and see street performers",
+            "address": "Times Square, New York, NY 10036, USA",
+            "coordinates": { "lat": 40.7580, "lng": -73.9855 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "04:00 PM",
+              "end": "05:30 PM"
+            },
+            "tags": ["outdoor", "sightseeing", "iconic", "entertainment"]
+          },
+          {
+            "id": "activity_4",
+            "type": "activity",
+            "title": "M&M's World Visit",
+            "description": "Three-story candy store experience for kids",
+            "address": "1600 Broadway, New York, NY 10019, USA",
+            "coordinates": { "lat": 40.7590, "lng": -73.9845 },
+            "estimated_duration": "45 minutes",
+            "sequenced_time": {
+              "start": "05:45 PM",
+              "end": "06:30 PM"
+            },
+            "tags": ["indoor", "shopping", "kids", "sweets"]
+          },
+          {
+            "id": "dinner_1",
+            "type": "meal",
+            "title": "Dinner at Ellen's Stardust Diner",
+            "description": "Broadway-themed diner with singing waitstaff",
+            "address": "1650 Broadway, New York, NY 10019, USA",
+            "coordinates": { "lat": 40.7614, "lng": -73.9776 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "07:00 PM",
+              "end": "08:30 PM"
+            },
+            "tags": ["food", "entertainment", "broadway", "family-friendly"]
+          },
+          {
+            "id": "activity_5",
+            "type": "activity",
+            "title": "Evening Walk in Bryant Park",
+            "description": "Relaxing evening stroll with beautiful city views",
+            "address": "Bryant Park, New York, NY 10018, USA",
+            "coordinates": { "lat": 40.7536, "lng": -73.9832 },
+            "estimated_duration": "45 minutes",
+            "sequenced_time": {
+              "start": "09:00 PM",
+              "end": "09:45 PM"
+            },
+            "tags": ["outdoor", "relaxing", "evening", "park"]
+          }
+        ],
+        "accommodation": "Pod Hotels Times Square",
+        "transportation": "Walking and subway"
+      },
+      {
+        "day": 2,
+        "date": "2025-09-21",
+        "activities": [
+          {
+            "id": "activity_6",
+            "type": "activity",
+            "title": "Statue of Liberty Ferry",
+            "description": "Take ferry to see the iconic Statue of Liberty",
+            "address": "Battery Park, New York, NY 10004, USA",
+            "coordinates": { "lat": 40.7033, "lng": -74.0170 },
+            "estimated_duration": "3 hours",
+            "sequenced_time": {
+              "start": "09:00 AM",
+              "end": "12:00 PM"
+            },
+            "tags": ["outdoor", "sightseeing", "ferry", "iconic", "historical"]
+          },
+          {
+            "id": "activity_7",
+            "type": "activity",
+            "title": "9/11 Memorial & Museum",
+            "description": "Educational visit to remember and learn about history",
+            "address": "180 Greenwich St, New York, NY 10007, USA",
+            "coordinates": { "lat": 40.7115, "lng": -74.0134 },
+            "estimated_duration": "2 hours",
+            "sequenced_time": {
+              "start": "12:30 PM",
+              "end": "02:30 PM"
+            },
+            "tags": ["indoor", "memorial", "historical", "educational"]
+          },
+          {
+            "id": "meal_2",
+            "type": "meal",
+            "title": "Lunch at Stone Street Tavern",
+            "description": "Historic cobblestone street with family dining",
+            "address": "52 Stone St, New York, NY 10004, USA",
+            "coordinates": { "lat": 40.7041, "lng": -74.0112 },
+            "estimated_duration": "1 hour",
+            "sequenced_time": {
+              "start": "03:00 PM",
+              "end": "04:00 PM"
+            },
+            "tags": ["food", "historic", "family-friendly", "american"]
+          },
+          {
+            "id": "activity_8",
+            "type": "activity",
+            "title": "Brooklyn Bridge Walk",
+            "description": "Walk across the famous Brooklyn Bridge with stunning views",
+            "address": "Brooklyn Bridge, New York, NY 10038, USA",
+            "coordinates": { "lat": 40.7061, "lng": -73.9969 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "04:30 PM",
+              "end": "06:00 PM"
+            },
+            "tags": ["outdoor", "walking", "iconic", "bridge", "views"]
+          },
+          {
+            "id": "activity_9",
+            "type": "activity",
+            "title": "DUMBO Waterfront Park",
+            "description": "Beautiful park with Manhattan skyline views and playground",
+            "address": "DUMBO, Brooklyn, NY 11201, USA",
+            "coordinates": { "lat": 40.7024, "lng": -73.9875 },
+            "estimated_duration": "1 hour",
+            "sequenced_time": {
+              "start": "06:15 PM",
+              "end": "07:15 PM"
+            },
+            "tags": ["outdoor", "park", "playground", "waterfront", "views"]
+          },
+          {
+            "id": "dinner_2",
+            "type": "meal",
+            "title": "Dinner at Grimaldi's Pizza",
+            "description": "Famous Brooklyn pizza under the bridge",
+            "address": "1 Front St, Brooklyn, NY 11201, USA",
+            "coordinates": { "lat": 40.7024, "lng": -73.9936 },
+            "estimated_duration": "1 hour",
+            "sequenced_time": {
+              "start": "07:30 PM",
+              "end": "08:30 PM"
+            },
+            "tags": ["food", "pizza", "famous", "family-friendly"]
+          },
+          {
+            "id": "activity_10",
+            "type": "activity",
+            "title": "Evening Manhattan Skyline Views",
+            "description": "Watch the sunset over Manhattan from Brooklyn Heights Promenade",
+            "address": "Brooklyn Heights Promenade, Brooklyn, NY 11201, USA",
+            "coordinates": { "lat": 40.6962, "lng": -73.9978 },
+            "estimated_duration": "45 minutes",
+            "sequenced_time": {
+              "start": "09:00 PM",
+              "end": "09:45 PM"
+            },
+            "tags": ["outdoor", "views", "sunset", "romantic", "peaceful"]
+          }
+        ],
+        "accommodation": "Pod Hotels Times Square",
+        "transportation": "Subway and walking"
+      },
+      {
+        "day": 3,
+        "date": "2025-09-22",
+        "activities": [
+          {
+            "id": "activity_11",
+            "type": "activity",
+            "title": "Top of the Rock Observatory",
+            "description": "Panoramic views of NYC from Rockefeller Center",
+            "address": "30 Rockefeller Plaza, New York, NY 10112, USA",
+            "coordinates": { "lat": 40.7587, "lng": -73.9787 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "09:00 AM",
+              "end": "10:30 AM"
+            },
+            "tags": ["indoor", "observatory", "views", "iconic", "sightseeing"]
+          },
+          {
+            "id": "activity_12",
+            "type": "activity",
+            "title": "Central Park Zoo",
+            "description": "Small zoo perfect for young children in Central Park",
+            "address": "64th St & 5th Ave, New York, NY 10021, USA",
+            "coordinates": { "lat": 40.7678, "lng": -73.9718 },
+            "estimated_duration": "2 hours",
+            "sequenced_time": {
+              "start": "11:00 AM",
+              "end": "01:00 PM"
+            },
+            "tags": ["outdoor", "zoo", "animals", "kids", "family"]
+          },
+          {
+            "id": "meal_3",
+            "type": "meal",
+            "title": "Lunch at The Plaza Food Hall",
+            "description": "Upscale food court with multiple dining options",
+            "address": "1 W 59th St, New York, NY 10019, USA",
+            "coordinates": { "lat": 40.7648, "lng": -73.9754 },
+            "estimated_duration": "1 hour",
+            "sequenced_time": {
+              "start": "01:15 PM",
+              "end": "02:15 PM"
+            },
+            "tags": ["food", "upscale", "variety", "family-friendly"]
+          },
+          {
+            "id": "activity_13",
+            "type": "activity",
+            "title": "FAO Schwarz Toy Store",
+            "description": "Famous toy store with interactive experiences",
+            "address": "30 Rockefeller Plaza, New York, NY 10112, USA",
+            "coordinates": { "lat": 40.7587, "lng": -73.9787 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "03:00 PM",
+              "end": "04:30 PM"
+            },
+            "tags": ["indoor", "shopping", "toys", "kids", "interactive"]
+          },
+          {
+            "id": "activity_14",
+            "type": "activity",
+            "title": "High Line Park Walk",
+            "description": "Elevated park built on former railway with unique views",
+            "address": "High Line, New York, NY 10011, USA",
+            "coordinates": { "lat": 40.7480, "lng": -74.0048 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "05:00 PM",
+              "end": "06:30 PM"
+            },
+            "tags": ["outdoor", "park", "walking", "unique", "art"]
+          },
+          {
+            "id": "dinner_3",
+            "type": "meal",
+            "title": "Farewell Dinner at Junior's",
+            "description": "Famous for cheesecake and classic American comfort food",
+            "address": "386 Flatbush Ave Extension, Brooklyn, NY 11201, USA",
+            "coordinates": { "lat": 40.6908, "lng": -73.9826 },
+            "estimated_duration": "1.5 hours",
+            "sequenced_time": {
+              "start": "07:00 PM",
+              "end": "08:30 PM"
+            },
+            "tags": ["food", "famous", "dessert", "family-friendly", "farewell"]
+          },
+          {
+            "id": "activity_15",
+            "type": "activity",
+            "title": "Evening Stroll in Little Italy",
+            "description": "Walk through historic Little Italy neighborhood",
+            "address": "Little Italy, New York, NY 10013, USA",
+            "coordinates": { "lat": 40.7193, "lng": -73.9965 },
+            "estimated_duration": "45 minutes",
+            "sequenced_time": {
+              "start": "09:00 PM",
+              "end": "09:45 PM"
+            },
+            "tags": ["outdoor", "cultural", "historic", "walking", "neighborhood"]
+          }
+        ],
+        "accommodation": "Pod Hotels Times Square",
+        "transportation": "Subway, taxi, and walking"
+      }
+    ]
+  }
+}
