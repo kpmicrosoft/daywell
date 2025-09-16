@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Calendar, MapPin, Clock, Users, Star, Plus } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ItineraryItem {
   id: string;
@@ -12,6 +13,7 @@ interface ItineraryItem {
   duration: string;
   category: string;
   notes?: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 interface ItineraryDay {
@@ -19,38 +21,56 @@ interface ItineraryDay {
   items: ItineraryItem[];
 }
 
-export function ItineraryView() {
-  const [selectedEvent, setSelectedEvent] = useState(null);
+const libraries: "places"[] = ["places"];
 
-  // Mock events data for map
+const mapContainerStyleExpanded = {
+  width: '100%',
+  height: '400px' // Larger when expanded for detailed viewing
+};
+
+const center = {
+  lat: 40.7829, // Central Park coordinates
+  lng: -73.9654
+};
+
+export function ItineraryView() {
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
+  const [isMapExpanded, setIsMapExpanded] = useState(false); // Changed to false for collapsed by default
+
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    libraries,
+  });
+
+  // Mock events data for map with real NYC coordinates
   const events = [
     {
       id: '1',
       title: 'Family Fun Day at Central Park',
       location: 'Central Park',
       category: 'Family',
-      coordinates: { x: 30, y: 40 }
+      coordinates: { lat: 40.7829, lng: -73.9654 }
     },
     {
       id: '2',
       title: 'Science Museum Exhibition',
       location: 'City Science Museum',
       category: 'Indoor',
-      coordinates: { x: 60, y: 25 }
+      coordinates: { lat: 40.7614, lng: -73.9776 }
     },
     {
       id: '3',
       title: 'Riverside Park Picnic',
       location: 'Riverside Park',
       category: 'Outdoor',
-      coordinates: { x: 75, y: 60 }
+      coordinates: { lat: 40.7956, lng: -73.9721 }
     },
     {
       id: '4',
       title: 'Downtown Restaurant',
       location: 'Downtown Area',
       category: 'Food',
-      coordinates: { x: 45, y: 70 }
+      coordinates: { lat: 40.7505, lng: -73.9934 }
     }
   ];
 
@@ -122,6 +142,18 @@ export function ItineraryView() {
     return colors[category as keyof typeof colors] || 'bg-gray-500';
   };
 
+  const getCategoryMapColor = (category: string) => {
+    const colors = {
+      'Family': '#3b82f6',
+      'Indoor': '#a855f7',
+      'Outdoor': '#22c55e',
+      'Food': '#f97316',
+      'Cultural': '#ec4899',
+      'Shopping': '#eab308'
+    };
+    return colors[category as keyof typeof colors] || '#6b7280';
+  };
+
   const getCategoryIcon = (category: string) => {
     const icons = {
       'Family': '👨‍👩‍👧‍👦',
@@ -143,59 +175,127 @@ export function ItineraryView() {
         </p>
       </div>
 
-      {/* Interactive Map */}
-      <div className="relative h-48 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg overflow-hidden border border-primary/20">
-        {/* Mock map background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50">
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-20">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex">
-                {Array.from({ length: 8 }).map((_, j) => (
-                  <div key={j} className="w-8 h-8 border border-gray-200"></div>
-                ))}
+      {/* Interactive Google Map - Foldable */}
+      <Card className="border border-primary/20">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MapPin className="w-5 h-5" />
+              Trip Map {!isMapExpanded && '(Click to view)'}
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMapExpanded(!isMapExpanded)}
+              className="h-8 w-8 p-0"
+            >
+              {isMapExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="p-0">
+          {isMapExpanded && (
+            <div className="relative bg-gradient-to-br from-green-100 to-blue-100 overflow-hidden h-96">
+              {loadError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-600">Error loading map</p>
+                </div>
+              )}
+              
+              {!isLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-600">Loading map...</p>
+                </div>
+              )}
+              
+              {isLoaded && (
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyleExpanded}
+                  zoom={14}
+                  center={center}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                      {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                      }
+                    ]
+                  }}
+                >
+                  {/* Event markers */}
+                  {events.map((event) => (
+                    <Marker
+                      key={event.id}
+                      position={event.coordinates}
+                      onClick={() => setSelectedMarker(event.id)}
+                      icon={{
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: getCategoryMapColor(event.category),
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2,
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Info Window */}
+                  {selectedMarker && (
+                    <InfoWindow
+                      position={events.find(e => e.id === selectedMarker)?.coordinates}
+                      onCloseClick={() => setSelectedMarker(null)}
+                    >
+                      <div className="p-2">
+                        <h4 className="font-semibold text-sm">{events.find(e => e.id === selectedMarker)?.title}</h4>
+                        <p className="text-xs text-gray-600">{events.find(e => e.id === selectedMarker)?.location}</p>
+                        <span className="text-xs px-2 py-1 rounded bg-gray-100 mt-1 inline-block">
+                          {events.find(e => e.id === selectedMarker)?.category}
+                        </span>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </GoogleMap>
+              )}
+              
+              {/* Map legend */}
+              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg p-3 text-xs shadow-lg">
+                <div className="space-y-2">
+                  <div className="font-medium text-gray-700 mb-2">Categories</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span>Family</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>Outdoor</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <span>Indoor</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <span>Food</span>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Event markers */}
-        {events.map((event) => (
-          <button
-            key={event.id}
-            onClick={() => setSelectedEvent(event)}
-            className={`absolute w-6 h-6 rounded-full ${getCategoryColor(event.category)} 
-              text-white flex items-center justify-center text-xs hover:scale-110 
-              transition-transform shadow-lg border-2 border-white z-10`}
-            style={{
-              left: `${event.coordinates.x}%`,
-              top: `${event.coordinates.y}%`,
-              transform: 'translate(-50%, -50%)'
-            }}
-            title={event.title}
-          >
-            {getCategoryIcon(event.category)}
-          </button>
-        ))}
-        
-        {/* Map legend */}
-        <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-xs">
-          <div className="space-y-1">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>Family</span>
+              
+              {/* Collapse hint */}
+              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-gray-600 shadow-lg">
+                Tap to collapse
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Outdoor</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>Indoor</span>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Trip Overview */}
       <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
