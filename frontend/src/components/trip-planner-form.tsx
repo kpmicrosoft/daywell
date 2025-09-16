@@ -113,8 +113,14 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
   };
 
   const activities = [
-    { id: 'outdoor', label: 'Outdoor Activities' },
-    { id: 'indoor', label: 'Indoor Activities' }
+    { id: 'any', label: 'Any' },
+    { id: 'hiking', label: 'Hiking' },
+    { id: 'museums', label: 'Museums' },
+    { id: 'cruises', label: 'Cruises' },
+    { id: 'zoo', label: 'Zoo' },
+    { id: 'theme parks', label: 'Theme Parks' },
+    { id: 'camping', label: 'Camping' },
+    { id: 'shopping', label: 'Shopping' },
   ];
 
   return (
@@ -128,10 +134,10 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Destination */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
               Destination
@@ -143,50 +149,52 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               onPlaceSelect={handlePlaceSelect}
-              className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary text-gray-900"
+              className="h-12 text-gray-900"
             />
           </CardContent>
         </Card>
 
         {/* Dates */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               Travel Dates
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="start-date">Start Date</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary text-gray-900"
-              />
-            </div>
-            <div>
-              <Label htmlFor="end-date">End Date</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="h-12 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary text-gray-900"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className='space-y-3'>
+                <Label htmlFor="start-date">Start Date</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="h-12 text-gray-900"
+                />
+              </div>
+              <div className='space-y-3'>
+                <Label htmlFor="end-date">End Date</Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="h-12 text-gray-900"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Travelers - Family Members */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-white" />
               </div>
               Family Members
@@ -226,10 +234,10 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         </Card>
 
         {/* Budget */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-white" />
               </div>
               Budget Range
@@ -254,26 +262,27 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         </Card>
 
         {/* Activity Preferences */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <Activity className="w-5 h-5 text-white" />
               </div>
               Activity Preferences
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-wrap gap-3">
               {activities.map((activity) => (
                 <Button
                   key={activity.id}
                   type="button"
                   variant={activityPreferences.includes(activity.id) ? "default" : "outline"}
                   onClick={() => handleActivityToggle(activity.id)}
-                  className="w-full h-auto p-4 flex items-center gap-3 justify-start border border-gray-300 hover:border-primary data-[state=checked]:border-primary data-[state=checked]:bg-primary/5"
+                  className="h-10 px-4 flex items-center gap-3 hover:border-primary data-[state=checked]:border-primary"
+                  style={activityPreferences.includes(activity.id) ? { backgroundColor: '#03438C', color: 'white' } : {}}
                 >
-                  <span className="text-base text-gray-900">
+                  <span className={`text-base ${activityPreferences.includes(activity.id) ? 'text-white' : 'text-gray-900'}`}>
                     {activity.label}
                   </span>
                 </Button>
@@ -295,10 +304,10 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         </Card>
 
         {/* Personalization */}
-        <Card className="border border-primary/20 bg-white">
+        <Card className="border border-primary/20 bg-white gap-1">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3 text-lg text-gray-900">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
+              <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-white" />
               </div>
               Personalization
@@ -309,7 +318,7 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
               placeholder="Tell our AI about any special needs, allergies, accessibility requirements, or specific activities you'd love to include!"
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
-              className="min-h-20 border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary resize-none text-gray-900"
+              className="min-h-20 text-gray-900"
               rows={3}
             />
             <p className="text-sm text-gray-600 mt-2">
@@ -320,7 +329,7 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
+          className="w-full h-14 text-lg bg-create hover:bg-primary/90 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
           disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0}
         >
           Create My Itinerary

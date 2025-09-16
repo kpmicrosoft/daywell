@@ -1698,6 +1698,14 @@
     background-color: var(--primary);
   }
 
+  .bg-create {
+    background-color: #8AC2FF;
+  }
+
+  .bg-icon {
+    background-color: #03438C;
+  }
+
   .bg-primary\/10 {
     background-color: var(--primary);
   }
@@ -2104,7 +2112,7 @@
   }
 
   .text-card-foreground {
-    color: var(--card-foreground);
+    color: var(--dark-blue);
   }
 
   .text-current {
@@ -4486,6 +4494,7 @@
   --foreground: oklch(.145 0 0);
   --card: #fff;
   --card-foreground: oklch(.145 0 0);
+  --dark-blue: #03438C;
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(.145 0 0);
   --primary: #1cb0f6;
@@ -4506,7 +4515,7 @@
   --destructive-foreground: #fff;
   --border: #0000001a;
   --input: transparent;
-  --input-background: #f3f3f5;
+  --input-background: #DEEDFF;
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
