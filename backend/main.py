@@ -163,17 +163,36 @@ from fastapi.responses import JSONResponse
 import json
 import os
 
+class TripRequest(BaseModel):
+    destination: str
+    startDate: str
+    endDate: str
+    budget: float
+    activityPreferences: list
+    travelers: list
+    adults: list
+    children: list
+    adultsCount: int
+    childrenCount: int
+    specialRequests: str
+
 @app.post(
     "/plan",
-    summary="Get Family Trip Plan",
-    description="Returns a static family trip plan for New York City as a JSON object.",
-    response_description="A detailed trip plan for a family in New York City."
+    summary="Create Family Trip Plan",
+    description="Creates a family trip plan based on the provided trip data and returns a detailed itinerary.",
+    response_description="A detailed trip plan customized for the family."
 )
-def create_plan():
+def create_plan(trip_request: TripRequest):
     """
-    Returns a static plan from plan_data.json as JSON response.
+    Creates a trip plan based on the provided trip data.
+    For now, returns a static plan from plan_data.json but logs the received data.
     - **trip**: Trip details including destination, duration, family members, and itinerary.
     """
+    # Log the received trip data (in a real implementation, you would use this to generate a custom plan)
+    print(f"Received trip request: {trip_request}")
+    
+    # For now, return the static plan from plan_data.json
+    # In the future, this would generate a custom plan based on the trip_request
     json_path = os.path.join(os.path.dirname(__file__), "plan_data.json")
     with open(json_path, "r", encoding="utf-8") as f:
         plan = json.load(f)

@@ -16,10 +16,11 @@ interface FamilyMember {
 }
 
 interface TripPlannerFormProps {
-  onPlanTrip: (tripData: any) => void;
+  onPlanTrip: (tripData: any) => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
+export function TripPlannerForm({ onPlanTrip, isLoading = false }: TripPlannerFormProps) {
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -80,7 +81,7 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
     setDestination(placeName);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Get selected family member details
@@ -109,7 +110,8 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
       childrenCount: children.length,
       specialRequests
     };
-    onPlanTrip(tripData);
+    
+    await onPlanTrip(tripData);
   };
 
   const activities = [
@@ -330,9 +332,9 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         <Button 
           type="submit" 
           className="w-full h-14 text-lg bg-create hover:bg-primary/90 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
-          disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0}
+          disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0 || isLoading}
         >
-          Create My Itinerary
+          {isLoading ? 'Creating Your Itinerary...' : 'Create My Itinerary'}
         </Button>
       </form>
     </div>
