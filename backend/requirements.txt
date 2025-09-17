@@ -1,8 +1,9 @@
 fastapi
 uvicorn
+python-dotenv
 
 # Azure AI SDK dependencies
-#azure-ai-projects
-#azure-identity
-#azure-ai-agents
+azure-ai-projects
+azure-identity
+azure-ai-agents
 openai

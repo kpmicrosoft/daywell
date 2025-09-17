@@ -1,13 +1,15 @@
 
-# New endpoint: POST /openai-chat
-from fastapi import Body
-# New endpoint: POST /azure-agent
-from fastapi import HTTPException
-from fastapi import FastAPI
+# FastAPI imports and setup
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-
-# New endpoint: GET /status
+from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
+import os
+import json
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 app = FastAPI()
@@ -38,95 +40,6 @@ def get_family(member_id: int = Query(..., description="The ID of the family mem
     else:
         return {"error": f"No family member found with id {member_id}"}
 
-@app.post("/openai-chat", summary="Azure OpenAI Chat", description="Get a chat completion from Azure OpenAI GPT-4.1.")
-def openai_chat(
-    user_message: str = Body(..., embed=True, description="The user's message to send to the assistant.")
-):
-    """
-    Uses Azure OpenAI to generate a chat completion response.
-    """
-    try:
-        from openai import AzureOpenAI
-
-        subscription_key = "Do0xJMw0uoR9CgwByTeO928mnDafiwRXPZG9KS7jx0bKYfaY3ixnJQQJ99BIACYeBjFXJ3w3AAAAACOGPLM3"
-        client = AzureOpenAI(
-            api_version="2024-12-01-preview",
-            azure_endpoint="https://daywell-ai.cognitiveservices.azure.com/",
-            api_key=subscription_key,
-        )
-        deployment = "gpt-4.1"
-        response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": user_message}
-            ],
-            max_completion_tokens=13107,
-            temperature=1.0,
-            top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-            model=deployment
-        )
-        return {"response": response.choices[0].message.content}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-
-
-class SimpleBearerTokenCredential:
-    def __init__(self, token):
-        self._token = token
-    def get_token(self, *scopes, **kwargs):
-        # Expires in 1 hour (3600 seconds)
-        return AccessToken(self._token, 3600)
-
-
-
-# Refactored: Accept token and user_message from request body
-@app.post("/azure-agent", summary="Azure AI Agent Conversation", description="Starts a thread with Azure AI Agent and returns the conversation result.")
-def azure_agent_conversation(
-    token: str = Body(..., embed=True, description="Azure Bearer token for authentication."),
-    user_message: str = Body("Hi User Agent", embed=True, description="The user's message to send to the agent.")
-):
-    """
-    Demonstrates Azure AI ProjectClient usage and returns the conversation result as JSON.
-    """
-    try:
-        from azure.ai.projects import AIProjectClient
-        from azure.ai.agents.models import ListSortOrder
-
-        credential = SimpleBearerTokenCredential(token)
-        project = AIProjectClient(
-            credential=credential,
-            endpoint="https://daywell-ai.services.ai.azure.com/api/projects/daywell-ai-planner"
-        )
-        agent = project.agents.get_agent("asst_6kpuVo6jYlveT5gGBUQW2Jtw")
-        thread = project.agents.threads.create()
-        message = project.agents.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=user_message
-        )
-        run = project.agents.runs.create_and_process(
-            thread_id=thread.id,
-            agent_id=agent.id
-        )
-        if run.status == "failed":
-            return {"status": "failed", "error": run.last_error}
-        else:
-            messages = project.agents.messages.list(thread_id=thread.id, order=ListSortOrder.ASCENDING)
-            result = []
-            for message in messages:
-                if getattr(message, "text_messages", None):
-                    result.append({
-                        "role": message.role,
-                        "text": message.text_messages[-1].text.value
-                    })
-            return {"status": "success", "thread_id": thread.id, "conversation": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -134,8 +47,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from fastapi.responses import RedirectResponse
 
 @app.get("/", include_in_schema=False)
 def root():
@@ -153,15 +64,6 @@ def get_status():
     - **status**: Always 'up' if the API is running.
     """
     return StatusResponse(status="up")
-
-
-
-
-# New endpoint: POST /plan
-
-from fastapi.responses import JSONResponse
-import json
-import os
 
 class TripRequest(BaseModel):
     destination: str
@@ -184,17 +86,147 @@ class TripRequest(BaseModel):
 )
 def create_plan(trip_request: TripRequest):
     """
-    Creates a trip plan based on the provided trip data.
-    For now, returns a static plan from plan_data.json but logs the received data.
+    Creates a trip plan based on the provided trip data using Azure OpenAI.
+    Falls back to static plan if AI generation fails.
     - **trip**: Trip details including destination, duration, family members, and itinerary.
     """
-    # Log the received trip data (in a real implementation, you would use this to generate a custom plan)
     print(f"Received trip request: {trip_request}")
     
-    # For now, return the static plan from plan_data.json
-    # In the future, this would generate a custom plan based on the trip_request
-    json_path = os.path.join(os.path.dirname(__file__), "plan_data.json")
-    with open(json_path, "r", encoding="utf-8") as f:
-        plan = json.load(f)
-    return JSONResponse(content=plan)
+    try:
+        # Generate AI-powered itinerary
+        from openai import AzureOpenAI
+        from datetime import datetime, timedelta
+        
+        subscription_key = os.getenv("AZURE_AI_API_KEY")
+        if not subscription_key:
+            raise HTTPException(status_code=500, detail="Azure AI API key not found in environment variables")
+            
+        client = AzureOpenAI(
+            api_version="2024-12-01-preview",
+            azure_endpoint="https://daywell-ai.cognitiveservices.azure.com/",
+            api_key=subscription_key,
+        )
+        
+        # Calculate trip duration
+        start_date = datetime.strptime(trip_request.startDate, "%Y-%m-%d")
+        end_date = datetime.strptime(trip_request.endDate, "%Y-%m-%d")
+        duration_days = (end_date - start_date).days + 1
+        
+        # Build family members description
+        family_desc = []
+        if trip_request.adults:
+            family_desc.append(f"Adults: {', '.join(trip_request.adults)}")
+        if trip_request.children:
+            family_desc.append(f"Children: {', '.join(trip_request.children)}")
+        
+        # Create the AI prompt
+        prompt = f"""You are a professional travel planner. Create a detailed family trip itinerary in JSON format.
+
+        TRIP DETAILS:
+        - Destination: {trip_request.destination}
+        - Start Date: {trip_request.startDate}
+        - End Date: {trip_request.endDate}
+        - Duration: {duration_days} days
+        - Budget: ${trip_request.budget:,.2f}
+        - Family: {'; '.join(family_desc)}
+        - Activity Preferences: {', '.join(trip_request.activityPreferences)}
+        - Special Requests: {trip_request.specialRequests or 'None'}
+
+        IMPORTANT REQUIREMENTS:
+        1. Return ONLY valid JSON, no other text
+        2. Include real, researchable locations with actual addresses
+        3. Provide realistic coordinates (lat/lng)
+        4. Schedule activities with realistic timing (9 AM - 9:45 PM)
+        5. Include family-friendly activities suitable for all ages in the group
+        6. Balance indoor/outdoor activities
+        7. Include meals (breakfast, lunch, dinner) with restaurant suggestions
+        8. Keep within the specified budget range
+        9. Use the EXACT JSON structure shown below
+
+        JSON STRUCTURE:
+        {{
+        "trip": {{
+            "destination": "{trip_request.destination}",
+            "duration": "{duration_days} days",
+            "family_members": [
+            {{"name": "Adult 1", "age": 35}},
+            {{"name": "Child 1", "age": 8}}
+            ],
+            "itinerary": [
+            {{
+                "day": 1,
+                "date": "{trip_request.startDate}",
+                "activities": [
+                {{
+                    "id": "activity_1",
+                    "type": "activity",
+                    "title": "Activity Name",
+                    "description": "Brief description of the activity",
+                    "address": "Full street address",
+                    "coordinates": {{"lat": 40.7831, "lng": -73.9712}},
+                    "estimated_duration": "2 hours",
+                    "sequenced_time": {{
+                    "start": "09:00 AM",
+                    "end": "11:00 AM"
+                    }},
+                    "tags": ["tag1", "tag2", "tag3"]
+                }},
+                {{
+                    "id": "meal_1",
+                    "type": "meal",
+                    "title": "Restaurant Name",
+                    "description": "Type of cuisine and why it's family-friendly",
+                    "address": "Full restaurant address",
+                    "coordinates": {{"lat": 40.7864, "lng": -73.9761}},
+                    "estimated_duration": "1 hour",
+                    "sequenced_time": {{
+                    "start": "12:00 PM",
+                    "end": "01:00 PM"
+                    }},
+                    "tags": ["food", "family-friendly", "cuisine-type"]
+                }}
+                ],
+                "accommodation": "Suggested hotel name",
+                "transportation": "Recommended transport method"
+            }}
+            ]
+        }}
+        }}
+
+        Generate a complete {duration_days}-day itinerary following this exact format."""
+
+        deployment = "gpt-4.1"
+        
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are an expert travel planner specializing in family trips. Always respond with valid JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            max_completion_tokens=8000,
+            temperature=0.7,
+            model=deployment
+        )
+        
+        ai_response = response.choices[0].message.content
+        print(f"AI Response: {ai_response}")
+        
+        # Parse the JSON response
+        try:
+            plan = json.loads(ai_response)
+            return JSONResponse(content=plan)
+        except json.JSONDecodeError as json_error:
+            print(f"JSON parsing error: {json_error}")
+            print(f"Raw AI response: {ai_response}")
+            raise HTTPException(status_code=500, detail="AI generated invalid JSON format")
+            
+    except Exception as e:
+        print(f"AI generation failed: {str(e)}")
+        # Fallback to static plan
+        json_path = os.path.join(os.path.dirname(__file__), "plan_data.json")
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                plan = json.load(f)
+            return JSONResponse(content=plan)
+        except Exception as fallback_error:
+            raise HTTPException(status_code=500, detail=f"Both AI generation and fallback failed: {str(e)}, {str(fallback_error)}")
 

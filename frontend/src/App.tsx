@@ -4,6 +4,7 @@ import { EventsMap } from './components/events-map';
 import { ItineraryView } from './components/itinerary-view';
 import { ProfileView } from './components/profile-view';
 import { BottomNavigation } from './components/bottom-navigation';
+import { Logo } from './components/logo';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('plan');
@@ -56,6 +57,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50">
+      {/* Logo at the top of every page */}
+      <Logo />
+      
       {/* Main Content */}
       <main className="pb-16">
         {renderActiveView()}

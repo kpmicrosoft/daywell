@@ -127,10 +127,9 @@ export function TripPlannerForm({ onPlanTrip, isLoading = false }: TripPlannerFo
 
   return (
     <div className="p-4 space-y-6 max-w-md mx-auto">
-      <div className="text-center space-y-3">
-        <h1 className="text-2xl text-gray-900 font-semibold">Plan Your Family Trip</h1>
-        <p className="text-gray-600">
-          Create the perfect itinerary for your family adventure
+      <div className="text-center text-card-foreground">
+        <p>
+          Tap. Plan. Play.
         </p>
       </div>
 
