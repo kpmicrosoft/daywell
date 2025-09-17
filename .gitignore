@@ -65,3 +65,6 @@ backend/*.pyo
 backend/*.pyd
 
 **/venv/**
+frontend/node_modules/*
+frontend/build/*
+backend/__pycache__/*
