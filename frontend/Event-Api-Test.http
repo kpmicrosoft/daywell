@@ -1,0 +1,25 @@
+
+
+# GET /v1/events/ HTTP/1.1
+# Host: api.predicthq.com
+# Authorization: Bearer VXd6jVUcGedyL397rDKPLDFbFfHyFFCXQw8nI61q
+# Accept: */*
+
+
+# ###
+
+GET https://api.predicthq.com/v1/places/?q="Hoboken" HTTP/1.1
+Authorization: Bearer V
+Accept: */*
+
+
+###
+GET https://api.predicthq.com/v1/events/?place.scope=5128581&&active.gte=2025-09-20&&active.lte=2025-09-27&&category=community,festivals&&sort=-rank&&limits=20 HTTP/1.1
+Authorization: Bearer V
+Accept: */*
+
+
+###
+GET https://api.predicthq.com/v1/events/?within=5mi@40.7437,-74.0288&&active.gte=2025-09-20&&active.lte=2025-09-27&&category=community,festivals&&sort=-rank&&limits=20 HTTP/1.1
+Authorization: Bearer V
+Accept: */*
