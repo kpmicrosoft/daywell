@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -22,6 +22,18 @@ interface EventItem {
   location: string;
   category: string;
   coordinates?: { lat: number; lng: number };
+}
+
+interface PredictHQEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  category: string;
+  labels: string[];
+  location: string[];
+  description?: string;
+  local_rank: number;
 }
 
 interface ItineraryDay {
@@ -53,6 +65,10 @@ interface ItineraryViewProps {
 export function ItineraryView({ itineraryData }: ItineraryViewProps) {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [isEventsExpanded, setIsEventsExpanded] = useState(false);
+  const [apiEvents, setApiEvents] = useState<PredictHQEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
@@ -61,6 +77,46 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
     libraries,
   });
+
+  // Fetch events from PredictHQ API
+  const fetchEvents = async () => {
+    setEventsLoading(true);
+    setEventsError(null);
+    
+    try {
+      const apiKey = import.meta.env.VITE_PREDICTHQ_API_KEY;
+      if (!apiKey) {
+        throw new Error('PredictHQ API key not found in environment variables');
+      }
+
+      const response = await fetch(
+        'https://api.predicthq.com/v1/events/?place.scope=5128581&active.gte=2025-09-20&active.lte=2025-09-27&category=community,festivals&sort=-rank&limit=20',
+        {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Accept': '*/*'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setApiEvents(data.results || []);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setEventsError(error instanceof Error ? error.message : 'Failed to fetch events');
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+
+  // Fetch events when component mounts
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   // Show loading state if no itinerary data is available
   if (!itineraryData) {
@@ -302,6 +358,130 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
                   </div>
                 </div>
               </div>
+              
+              {/* Collapse hint */}
+              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-gray-600 shadow-lg">
+                Tap to collapse
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Events List - Foldable */}
+      <Card className="border border-primary/20">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Calendar className="w-5 h-5" />
+              Events {!isEventsExpanded && '(Click to view)'}
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEventsExpanded(!isEventsExpanded)}
+              className="h-8 w-8 p-0"
+            >
+              {isEventsExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="p-0">
+          {isEventsExpanded && (
+            <div className="relative bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden max-h-96 overflow-y-auto">
+              {eventsLoading && (
+                <div className="p-4 text-center">
+                  <p className="text-gray-600">Loading events...</p>
+                </div>
+              )}
+              
+              {eventsError && (
+                <div className="p-4 text-center">
+                  <p className="text-red-600 mb-2">Error loading events</p>
+                  <p className="text-xs text-gray-500">{eventsError}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={fetchEvents}
+                    className="mt-2"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
+              
+              {!eventsLoading && !eventsError && apiEvents.length > 0 && (
+                <div className="p-4 space-y-3">
+                  <div className="font-medium text-gray-700 mb-3">
+                    Upcoming Events ({apiEvents.length})
+                  </div>
+                  <div className="space-y-2">
+                    {apiEvents.map((event) => (
+                      <div key={event.id} className="flex items-start gap-3 p-3 rounded-lg bg-white shadow-sm border border-gray-100">
+                        <div className="flex-shrink-0">
+                          <span className="text-lg">
+                            {event.category === 'festivals' ? '🎉' : 
+                             event.category === 'community' ? '👥' : '📅'}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm leading-tight mb-1">
+                            {event.title}
+                          </div>
+                          {event.location && event.location.length > 0 && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                              <MapPin className="w-3 h-3" />
+                              <span className="truncate">{event.location.join(', ')}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{new Date(event.start).toLocaleDateString()}</span>
+                            {event.end && event.start !== event.end && (
+                              <span> - {new Date(event.end).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="secondary" className="text-xs capitalize">
+                              {event.category}
+                            </Badge>
+                            {event.local_rank && (
+                              <span className="text-xs text-gray-400">
+                                Rank: {event.local_rank}
+                              </span>
+                            )}
+                          </div>
+                          {event.labels && event.labels.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {event.labels.slice(0, 3).map((label, index) => (
+                                <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                  {label}
+                                </span>
+                              ))}
+                              {event.labels.length > 3 && (
+                                <span className="text-xs text-gray-400">
+                                  +{event.labels.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {!eventsLoading && !eventsError && apiEvents.length === 0 && (
+                <div className="p-4 text-center">
+                  <p className="text-gray-600">No events found for the selected dates</p>
+                </div>
+              )}
               
               {/* Collapse hint */}
               <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-gray-600 shadow-lg">
