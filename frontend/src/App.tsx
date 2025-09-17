@@ -18,7 +18,6 @@ export default function App() {
   useEffect(() => {
     loadRuntimeConfig()
       .then(config => {
-        // You can now use config.VITE_GOOGLE_MAPS_API_KEY, etc.
         console.log('Loaded runtime config:', config);
       })
       .catch(err => {

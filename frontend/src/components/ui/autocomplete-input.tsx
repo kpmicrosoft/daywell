@@ -20,7 +20,7 @@ export function AutocompleteInput({
   ...props 
 }: AutocompleteInputProps) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: "AIzaSyBKF57APna5m5IOBctajRZdtrbDiJYeziw",
     libraries,
   });
 
