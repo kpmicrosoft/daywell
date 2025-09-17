@@ -9,9 +9,10 @@ Daywell is a full-stack application for trip planning, featuring a React fronten
 ## Configuration
 
 ### Environment Variables
-Set your Google Maps API key in a `.env` file or your environment:
+Set your Google Maps and PredictHQ API key in a `.env` file or your environment:
 ```
 VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
+VITE_PREDICTHQ_API_KEY=your_predicthq_api_key_here
 ```
 
 ### Backend URL
