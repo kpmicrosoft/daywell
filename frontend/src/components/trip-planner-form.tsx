@@ -16,10 +16,11 @@ interface FamilyMember {
 }
 
 interface TripPlannerFormProps {
-  onPlanTrip: (tripData: any) => void;
+  onPlanTrip: (tripData: any) => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
+export function TripPlannerForm({ onPlanTrip, isLoading = false }: TripPlannerFormProps) {
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -80,7 +81,7 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
     setDestination(placeName);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Get selected family member details
@@ -109,7 +110,8 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
       childrenCount: children.length,
       specialRequests
     };
-    onPlanTrip(tripData);
+    
+    await onPlanTrip(tripData);
   };
 
   const activities = [
@@ -125,10 +127,9 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
 
   return (
     <div className="p-4 space-y-6 max-w-md mx-auto">
-      <div className="text-center space-y-3">
-        <h1 className="text-2xl text-gray-900 font-semibold">Plan Your Family Trip</h1>
-        <p className="text-gray-600">
-          Create the perfect itinerary for your family adventure
+      <div className="text-center text-card-foreground">
+        <p>
+          Tap. Plan. Play.
         </p>
       </div>
 
@@ -330,9 +331,9 @@ export function TripPlannerForm({ onPlanTrip }: TripPlannerFormProps) {
         <Button 
           type="submit" 
           className="w-full h-14 text-lg bg-create hover:bg-primary/90 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
-          disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0}
+          disabled={!destination || !startDate || !endDate || selectedTravelers.length === 0 || isLoading}
         >
-          Create My Itinerary
+          {isLoading ? 'Creating Your Itinerary...' : 'Create My Itinerary'}
         </Button>
       </form>
     </div>

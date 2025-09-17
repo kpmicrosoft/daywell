@@ -4,32 +4,62 @@ import { EventsMap } from './components/events-map';
 import { ItineraryView } from './components/itinerary-view';
 import { ProfileView } from './components/profile-view';
 import { BottomNavigation } from './components/bottom-navigation';
+import { Logo } from './components/logo';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('plan');
   const [hasCreatedTrip, setHasCreatedTrip] = useState(false);
+  const [itineraryData, setItineraryData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePlanTrip = (tripData: any) => {
+  const handlePlanTrip = async (tripData: any) => {
     console.log('Trip planned:', tripData);
-    setHasCreatedTrip(true);
-    setActiveTab('itinerary');
+    setIsLoading(true);
+    
+    try {
+      // Make API call to backend
+      const response = await fetch('http://localhost:8000/plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tripData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create itinerary');
+      }
+      
+      const data = await response.json();
+      setItineraryData(data);
+      setHasCreatedTrip(true);
+      setActiveTab('itinerary');
+    } catch (error) {
+      console.error('Error creating itinerary:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderActiveView = () => {
     switch (activeTab) {
       case 'plan':
-        return <TripPlannerForm onPlanTrip={handlePlanTrip} />;
+        return <TripPlannerForm onPlanTrip={handlePlanTrip} isLoading={isLoading} />;
       case 'itinerary':
-        return <ItineraryView />;
+        return <ItineraryView itineraryData={itineraryData} />;
       case 'profile':
         return <ProfileView />;
       default:
-        return <TripPlannerForm onPlanTrip={handlePlanTrip} />;
+        return <TripPlannerForm onPlanTrip={handlePlanTrip} isLoading={isLoading} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50">
+      {/* Logo at the top of every page */}
+      <Logo />
+      
       {/* Main Content */}
       <main className="pb-16">
         {renderActiveView()}
