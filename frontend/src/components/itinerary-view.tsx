@@ -124,7 +124,7 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
     setEventsError(null);
     
     try {
-      const apiKey = import.meta.env.VITE_PREDICTHQ_API_KEY;
+      const apiKey = "VXd6jVUcGedyL397rDKPLDFbFfHyFFCXQw8nI61q"; //import.meta.env.VITE_PREDICTHQ_API_KEY;";
       if (!apiKey) {
         throw new Error('PredictHQ API key not found in environment variables');
       }
