@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TripPlannerForm } from './components/trip-planner-form';
+import { EventsMap } from './components/events-map';
 import { ItineraryView } from './components/itinerary-view';
 import { ProfileView } from './components/profile-view';
 import { BottomNavigation } from './components/bottom-navigation';
@@ -7,6 +8,7 @@ import { Logo } from './components/logo';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('plan');
+  const [hasCreatedTrip, setHasCreatedTrip] = useState(false);
   const [itineraryData, setItineraryData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,6 +32,7 @@ export default function App() {
       
       const data = await response.json();
       setItineraryData(data);
+      setHasCreatedTrip(true);
       setActiveTab('itinerary');
     } catch (error) {
       console.error('Error creating itinerary:', error);

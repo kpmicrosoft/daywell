@@ -66,3 +66,4 @@ backend/*.pyd
 
 **/venv/**
 frontend/node_modules/*
+frontend/build/*
