@@ -2,6 +2,21 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
+name: Build and deploy Python app to Azure Web App - daywell-backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python version
@@ -69,4 +84,5 @@
         run: |
           sleep 30
           curl -f https://daywell-backend.azurewebsites.net/status || exit 1
+
 
