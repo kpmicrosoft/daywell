@@ -8,7 +8,7 @@ import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Textarea } from './ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { User, Calendar, Heart, Settings, LogOut, Plane, Plus, Edit, AlertTriangle } from 'lucide-react';
+import { Calendar, Heart, Settings, LogOut, Plane, Plus, Edit, AlertTriangle } from 'lucide-react';
 
 interface FamilyMember {
   id: string;
@@ -22,7 +22,7 @@ interface FamilyMember {
 
 export function ProfileView() {
   const [isAddingMember, setIsAddingMember] = useState(false);
-  const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
+  // const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([
     {

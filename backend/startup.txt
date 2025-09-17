@@ -1,0 +1,3 @@
+# This file tells Azure App Service how to run your Python app
+# If your entry point is main.py, this is sufficient
+python main.py

@@ -16,6 +16,14 @@ interface ItineraryItem {
   coordinates?: { lat: number; lng: number };
 }
 
+interface EventItem {
+  id: string;
+  title: string;
+  location: string;
+  category: string;
+  coordinates?: { lat: number; lng: number };
+}
+
 interface ItineraryDay {
   date: string;
   items: ItineraryItem[];
@@ -28,12 +36,21 @@ const mapContainerStyleExpanded = {
   height: '400px' // Larger when expanded for detailed viewing
 };
 
-const center = {
-  lat: 40.7829, // Central Park coordinates
-  lng: -73.9654
+const getMapCenter = (itineraryData: any) => {
+  // Try to get center from first activity with coordinates
+  const firstActivity = itineraryData?.trip?.itinerary?.[0]?.activities?.[0];
+  if (firstActivity?.coordinates) {
+    return firstActivity.coordinates;
+  }
+  // Fallback to NYC coordinates
+  return { lat: 40.7829, lng: -73.9654 };
 };
 
-export function ItineraryView() {
+interface ItineraryViewProps {
+  itineraryData?: any;
+}
+
+export function ItineraryView({ itineraryData }: ItineraryViewProps) {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -45,100 +62,51 @@ export function ItineraryView() {
     libraries,
   });
 
-  // Mock events data for map with real NYC coordinates
-  const events = [
-    {
-      id: '1',
-      title: 'Family Fun Day at Central Park',
-      location: 'Central Park',
-      category: 'Family',
-      coordinates: { lat: 40.7829, lng: -73.9654 }
-    },
-    {
-      id: '2',
-      title: 'Science Museum Exhibition',
-      location: 'City Science Museum',
-      category: 'Indoor',
-      coordinates: { lat: 40.7614, lng: -73.9776 }
-    },
-    {
-      id: '3',
-      title: 'Riverside Park Picnic',
-      location: 'Riverside Park',
-      category: 'Outdoor',
-      coordinates: { lat: 40.7956, lng: -73.9721 }
-    },
-    {
-      id: '4',
-      title: 'Downtown Restaurant',
-      location: 'Downtown Area',
-      category: 'Food',
-      coordinates: { lat: 40.7505, lng: -73.9934 }
-    },
-    {
-      id: '5',
-      title: 'Times Square Experience',
-      location: 'Times Square',
-      category: 'Cultural',
-      coordinates: { lat: 40.7580, lng: -73.9855 }
-    }
-  ];
+  // Show loading state if no itinerary data is available
+  if (!itineraryData) {
+    return (
+      <div className="p-4 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">No Itinerary Available</h2>
+          <p className="text-gray-500">Please create a trip plan first.</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Mock itinerary data
-  const itinerary: ItineraryDay[] = [
-    {
-      date: '2025-09-20',
-      items: [
-        {
-          id: '1',
-          title: 'Family Fun Day at Central Park',
-          location: 'Central Park',
-          time: '10:00 AM',
-          duration: '3 hours',
-          category: 'Family',
-          notes: 'Bring snacks and water bottles'
-        },
-        {
-          id: '2',
-          title: 'Lunch at Family Restaurant',
-          location: 'Downtown Area',
-          time: '1:00 PM',
-          duration: '1 hour',
-          category: 'Food'
-        },
-        {
-          id: '3',
-          title: 'Shopping at Local Market',
-          location: 'Main Street Market',
-          time: '3:00 PM',
-          duration: '2 hours',
-          category: 'Shopping'
-        }
-      ]
-    },
-    {
-      date: '2025-09-21',
-      items: [
-        {
-          id: '4',
-          title: 'Science Museum Exhibition',
-          location: 'City Science Museum',
-          time: '9:00 AM',
-          duration: '4 hours',
-          category: 'Indoor',
-          notes: 'Interactive exhibits - kids will love it!'
-        },
-        {
-          id: '5',
-          title: 'Picnic in the Park',
-          location: 'Riverside Park',
-          time: '2:00 PM',
-          duration: '2 hours',
-          category: 'Outdoor'
-        }
-      ]
-    }
-  ];
+  // Transform API response data into events for the map
+  const events = itineraryData?.trip?.itinerary?.flatMap((day: any) =>
+    day.activities?.map((activity: any) => ({
+      id: activity.id,
+      title: activity.title,
+      location: activity.address || 'Location not specified',
+      category: activity.type === 'meal' ? 'Food' : 
+               activity.tags?.includes('indoor') ? 'Indoor' :
+               activity.tags?.includes('outdoor') ? 'Outdoor' :
+               activity.tags?.includes('family') ? 'Family' : 'Activity',
+      coordinates: activity.coordinates
+    })) || []
+  ) || [];
+
+  // Transform API response data into itinerary format
+  const itinerary: ItineraryDay[] = itineraryData?.trip?.itinerary?.map((day: any) => ({
+    date: day.date,
+    items: day.activities?.map((activity: any) => ({
+      id: activity.id,
+      title: activity.title,
+      location: activity.address || 'Location not specified',
+      time: activity.sequenced_time?.start || 'Time TBD',
+      duration: activity.estimated_duration || 'Duration not specified',
+      category: activity.type === 'meal' ? 'Food' : 
+               activity.tags?.includes('indoor') ? 'Indoor' :
+               activity.tags?.includes('outdoor') ? 'Outdoor' :
+               activity.tags?.includes('family') ? 'Family' : 'Activity',
+      notes: activity.description
+    })) || []
+  })) || [];
+
+  // Get map center from itinerary data
+  const center = getMapCenter(itineraryData);
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -177,7 +145,7 @@ export function ItineraryView() {
       setInfoWindow(infoWindowInstance);
       
       // Create markers for each event
-      const newMarkers = events.map((event) => {
+      const newMarkers = events.map((event: EventItem) => {
         const marker = new AdvancedMarkerElement({
           map,
           position: event.coordinates,
@@ -191,9 +159,11 @@ export function ItineraryView() {
             <div style="padding: 8px;">
               <h4 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">${event.title}</h4>
               <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${event.location}</p>
-              <p style="margin: 0 0 4px 0; font-size: 12px; color: #999;">
-                Coordinates: ${event.coordinates.lat}, ${event.coordinates.lng}
-              </p>
+              ${event.coordinates ? `
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #999;">
+                  Coordinates: ${event.coordinates.lat}, ${event.coordinates.lng}
+                </p>
+              ` : ''}
               <span style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
                 ${event.category}
               </span>
@@ -263,7 +233,7 @@ export function ItineraryView() {
                   <p className="text-gray-600 text-center mb-4">Map could not load</p>
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>Fallback - Event Locations:</p>
-                    {events.map((event) => (
+                    {events.map((event: EventItem) => (
                       <div key={event.id} className="flex items-center gap-2">
                         <div 
                           className="w-3 h-3 rounded-full" 
