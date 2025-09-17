@@ -1,7 +1,7 @@
 {
-  "VITE_GOOGLE_MAPS_API_KEY": "",
-  "AZURE_AI_ENDPOINT": "",
-  "AZURE_AI_API_KEY": "",
-  "AZURE_AI_DEPLOYMENT_NAME": "",
-  "VITE_PREDICTHQ_API_KEY": ""
+  "VITE_GOOGLE_MAPS_API_KEY": "AIzaSyBKF57APna5m5IOBctajRZdtrbDiJYeziw",
+  "AZURE_AI_ENDPOINT": "https://daywell-ai.services.ai.azure.com/api/projects/daywell-ai-planner",
+  "AZURE_AI_API_KEY": "Do0xJMw0uoR9CgwByTeO928mnDafiwRXPZG9KS7jx0bKYfaY3ixnJQQJ99BIACYeBjFXJ3w3AAAAACOGPLM3",
+  "AZURE_AI_DEPLOYMENT_NAME": "gpt-4.1",
+  "VITE_PREDICTHQ_API_KEY": "VXd6jVUcGedyL397rDKPLDFbFfHyFFCXQw8nI61q"
 }
