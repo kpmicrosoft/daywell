@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/e4dfe493-dab7-44d5-811f-84cd7ae7fb34/resourceGroups/eu-hack-rg/providers/Microsoft.Web/sites/daywell-backend",
+    "appService.deploySubpath": "."
+}
