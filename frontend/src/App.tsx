@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PLAN_ENDPOINT } from './config';
 import { TripPlannerForm } from './components/trip-planner-form';
 import { EventsMap } from './components/events-map';
 import { ItineraryView } from './components/itinerary-view';
@@ -18,7 +19,7 @@ export default function App() {
     
     try {
       // Make API call to backend
-      const response = await fetch('http://localhost:8000/plan', {
+  const response = await fetch(PLAN_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
