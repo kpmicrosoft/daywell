@@ -1,13 +1,3 @@
-      - name: Set startup command for FastAPI
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az webapp config set \
-              --name daywell-backend \
-              --resource-group <YOUR-RESOURCE-GROUP-NAME> \
-              --startup-file "uvicorn main:app --host 0.0.0.0 --port 8000"
-        env:
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EA4E7BFDD3954C2C90932E488E33AF67 }}
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
@@ -70,6 +60,17 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2672FFB70544443AB90AD462E98D4D35 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C8894BE38EA249E88EA68DC754678C18 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EA4E7BFDD3954C2C90932E488E33AF67 }}
+
+      - name: Set startup command for FastAPI
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az webapp config set \
+              --name daywell-backend \
+              --resource-group <YOUR-RESOURCE-GROUP-NAME> \
+              --startup-file "uvicorn main:app --host 0.0.0.0 --port 8000"
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EA4E7BFDD3954C2C90932E488E33AF67 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3

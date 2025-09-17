@@ -65,3 +65,4 @@ backend/*.pyo
 backend/*.pyd
 
 **/venv/**
+frontend/node_modules/*

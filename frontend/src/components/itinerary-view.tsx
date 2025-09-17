@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -51,11 +51,7 @@ interface ItineraryViewProps {
 }
 
 export function ItineraryView({ itineraryData }: ItineraryViewProps) {
-  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
@@ -133,53 +129,9 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
   };
 
   // Handle map load and create markers using modern API
-  const onMapLoad = useCallback(async (map: google.maps.Map) => {
-    setMap(map);
-    
-    try {
-      // Import the marker library
-      const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
-      
-      // Create info window
-      const infoWindowInstance = new google.maps.InfoWindow();
-      setInfoWindow(infoWindowInstance);
-      
-      // Create markers for each event
-      const newMarkers = events.map((event: EventItem) => {
-        const marker = new AdvancedMarkerElement({
-          map,
-          position: event.coordinates,
-          title: event.title,
-        });
-        
-        // Add click listener
-        marker.addListener('click', () => {
-          setSelectedMarker(event.id);
-          infoWindowInstance.setContent(`
-            <div style="padding: 8px;">
-              <h4 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">${event.title}</h4>
-              <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${event.location}</p>
-              ${event.coordinates ? `
-                <p style="margin: 0 0 4px 0; font-size: 12px; color: #999;">
-                  Coordinates: ${event.coordinates.lat}, ${event.coordinates.lng}
-                </p>
-              ` : ''}
-              <span style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
-                ${event.category}
-              </span>
-            </div>
-          `);
-          infoWindowInstance.open(map, marker);
-        });
-        
-        return marker;
-      });
-      
-      setMarkers(newMarkers);
-    } catch (error) {
-      console.error('Error loading markers:', error);
-    }
-  }, [events]);
+  // const onMapLoad = useCallback(async (map: google.maps.Map) => {
+  //   // Marker logic removed due to unused state cleanup
+  // }, [events]);
 
   const getCategoryIcon = (category: string) => {
     const icons = {
@@ -262,7 +214,7 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
                   mapContainerStyle={mapContainerStyleExpanded}
                   zoom={12}
                   center={center}
-                  onLoad={onMapLoad}
+                  // onLoad removed due to unused state cleanup
                   options={{
                     disableDefaultUI: false,
                     zoomControl: true,
