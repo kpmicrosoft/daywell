@@ -22,7 +22,7 @@ export const BACKEND_BASE_URL = 'https://daywell-backend-gah8c4b3dzcbbtbf.eastus
 // For local development:
 export const BACKEND_BASE_URL = 'http://localhost:8000';
 ```
-Update this value if you deploy the backend elsewhere.
+Update this value if you deploy the backend elsewhere. 
 
 ---
 
