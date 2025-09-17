@@ -45,7 +45,7 @@ const libraries: ("places" | "marker")[] = ["places", "marker"];
 
 const mapContainerStyleExpanded = {
   width: '100%',
-  height: '400px' // Larger when expanded for detailed viewing
+  height: '300px' // Rectangular shape - wider than tall
 };
 
 const getMapCenter = (itineraryData: any) => {
@@ -64,7 +64,6 @@ interface ItineraryViewProps {
 
 export function ItineraryView({ itineraryData }: ItineraryViewProps) {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [isEventsExpanded, setIsEventsExpanded] = useState(false);
   const [apiEvents, setApiEvents] = useState<PredictHQEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
@@ -294,39 +293,16 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
 
   return (
     <div className="p-4 space-y-6 max-w-md mx-auto pb-20">
-      <div className="text-center space-y-3">
-        <h2 className="text-2xl text-gray-900 font-semibold">Your Family Itinerary</h2>
-        <p className="text-gray-600">
-          Your personalized trip plan
+      <div className="text-center space-y-3 text-card-foreground">
+        <p>
+          Plan Your Family Trip
         </p>
       </div>
 
       {/* Interactive Google Map - Foldable */}
-      <Card className="border border-primary/20">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MapPin className="w-5 h-5" />
-              Trip Map {!isMapExpanded && '(Click to view)'}
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMapExpanded(!isMapExpanded)}
-              className="h-8 w-8 p-0"
-            >
-              {isMapExpanded ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="p-0">
-          {isMapExpanded && (
-            <div className="relative bg-gradient-to-br from-green-100 to-blue-100 overflow-hidden h-96">
+      <Card className="rounded-xl overflow-hidden" style={{ borderColor: '#118B97', borderWidth: '0.2px', borderStyle: 'solid' }}>        
+        <CardContent className="p-0" style={{ paddingBottom: 0 }}>
+          <div className="relative bg-gradient-to-br from-green-100 to-blue-100 overflow-hidden h-80 rounded-xl pb-0">
               {loadError && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 p-4">
                   <p className="text-gray-600 text-center mb-4">Map could not load</p>
@@ -401,13 +377,7 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
                   </div>
                 </div>
               </div>
-              
-              {/* Collapse hint */}
-              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-gray-600 shadow-lg">
-                Tap to collapse
-              </div>
             </div>
-          )}
         </CardContent>
       </Card>
 
@@ -540,24 +510,26 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg text-green-700">🌟 New York City Adventure</h3>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">3 Days</Badge>
+              <h3 className="text-lg text-green-700">{itineraryData?.trip?.destination || "Your Family Adventure"}</h3>
+              <Badge variant="secondary" className="bg-green-100 text-green-700">{itineraryData?.trip?.duration || "Multi-day"}</Badge>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span>Sep 20-22, 2025</span>
+                <span>{itineraryData?.trip?.itinerary?.[0]?.date && itineraryData?.trip?.itinerary?.[itineraryData.trip.itinerary.length - 1]?.date 
+                  ? `${new Date(itineraryData.trip.itinerary[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(itineraryData.trip.itinerary[itineraryData.trip.itinerary.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                  : "Date TBD"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-muted-foreground" />
-                <span>4 Travelers</span>
+                <span>{itineraryData?.trip?.family_members?.length || 0} Travelers</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>New York City</span>
+                <span>{itineraryData?.trip?.destination?.split(',')[0] || "Destination"}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-green-600">$2,500 Budget</span>
+                <span className="text-green-600">{itineraryData?.trip?.itinerary?.length || 0} Days Planned</span>
               </div>
             </div>
           </div>
@@ -565,92 +537,62 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
       </Card>
 
       {/* Daily Itinerary */}
-      <div className="space-y-6">
+      <div className="">
         {itinerary.map((day, dayIndex) => (
-          <div key={dayIndex} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg">
-                Day {dayIndex + 1} - {new Date(day.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'short', 
-                  day: 'numeric' 
-                })}
-              </h3>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="space-y-3">
+          <Card key={dayIndex} className="border border-gray-200 gap-0">
+            <CardHeader className="pb-0">
+              <div className="flex items-center justify-between text-semibold">
+                <CardTitle className="text-lg underline" style={{ color: '#03438C', fontWeight: 'bold' }}>
+                  Day {dayIndex + 1} - {new Date(day.date).toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </CardTitle>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-3">
               {day.items.map((item, itemIndex) => (
-                <Card key={item.id} className="relative">
-                  {/* Timeline connector */}
-                  {itemIndex < day.items.length - 1 && (
-                    <div className="absolute left-6 top-16 w-0.5 h-8 bg-border z-0"></div>
-                  )}
-                  
-                  <CardContent className="p-4 relative z-10">
-                    <div className="flex gap-4">
-                      {/* Time indicator */}
-                      <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full ${getCategoryColor(item.category)} 
-                          text-white flex items-center justify-center text-xs`}>
-                          {getCategoryIcon(item.category)}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 text-center">
-                          {item.time}
-                        </div>
-                      </div>
-                      
-                      {/* Activity details */}
-                      <div className="flex-1 space-y-2">
-                        <div className="space-y-1">
-                          <h4 className="leading-tight">{item.title}</h4>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              <span>{item.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{item.duration}</span>
-                            </div>
+                <div key={item.id} className="relative bg-gray-50/50 rounded-lg">
+                  <div className="p-4 relative z-10">
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <h4 className="leading-tight" style={{ color: '#000000', fontWeight: 'bold' }}>{item.title}</h4>
+                        <div className="text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{item.location}</span>
                           </div>
                         </div>
-                        
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <Badge variant="outline" className="text-xs">
                             {item.category}
                           </Badge>
-                          <Button variant="ghost" size="sm" className="h-6 text-xs px-2">
-                            Edit
-                          </Button>
-                        </div>
-                        
-                        {item.notes && (
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2">
-                            <p className="text-xs text-yellow-800">{item.notes}</p>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{item.time}</span>
                           </div>
-                        )}
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{item.duration}</span>
+                          </div>
+                        </div>
                       </div>
+                      
+                      {item.notes && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2">
+                          <p className="text-xs text-yellow-800">{item.notes}</p>
+                        </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
-
-      {/* Add Day Button */}
-      <Card className="border-dashed border-2 border-gray-300">
-        <CardContent className="p-6">
-          <Button variant="ghost" className="w-full flex items-center gap-2 text-muted-foreground">
-            <Plus className="w-5 h-5" />
-            Add Another Day
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Action Buttons */}
       <div className="space-y-3">

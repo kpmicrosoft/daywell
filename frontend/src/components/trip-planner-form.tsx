@@ -7,7 +7,7 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Slider } from './ui/slider';
 import { Badge } from './ui/badge';
-import { MapPin, Calendar, DollarSign, Activity, MessageSquare, Users } from 'lucide-react';
+import { MapPin, Calendar, DollarSign, Activity, MessageSquare, Users, Sparkles } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 
 interface FamilyMember {
@@ -310,9 +310,9 @@ export function TripPlannerForm({ onPlanTrip, isLoading = false }: TripPlannerFo
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg text-[#03438C] font-semibold">
               <div className="w-9 h-9 bg-icon rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-white" />
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
-              Personalization
+              The Magic
             </CardTitle>
           </CardHeader>
           <CardContent>
