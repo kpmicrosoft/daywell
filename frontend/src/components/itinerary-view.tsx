@@ -78,6 +78,47 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
     libraries,
   });
 
+  // Extract coordinates, start date, and end date from itinerary data
+  const getApiParameters = () => {
+    if (!itineraryData?.trip) {
+      // Fallback to NYC coordinates and default dates
+      return {
+        coordinates: '40.7437,-74.0288',
+        startDate: '2025-09-20',
+        endDate: '2025-09-27'
+      };
+    }
+
+    // Get coordinates from trip level, fallback to first activity if not available
+    let coordinates = '40.7437,-74.0288'; // Default NYC coordinates
+    if (itineraryData.trip.coordinates) {
+      const { lat, lng } = itineraryData.trip.coordinates;
+      coordinates = `${lat},${lng}`;
+    } else if (itineraryData.trip.itinerary?.[0]?.activities?.[0]?.coordinates) {
+      // Fallback to first activity coordinates if trip coordinates not available
+      const { lat, lng } = itineraryData.trip.itinerary[0].activities[0].coordinates;
+      coordinates = `${lat},${lng}`;
+    }
+
+    // Get start date and end date from trip level, fallback to itinerary dates
+    let startDate = '2025-09-20';
+    let endDate = '2025-09-27';
+    
+    if (itineraryData.trip.startDate) {
+      startDate = itineraryData.trip.startDate;
+    } else if (itineraryData.trip.itinerary?.[0]?.date) {
+      startDate = itineraryData.trip.itinerary[0].date;
+    }
+    
+    if (itineraryData.trip.endDate) {
+      endDate = itineraryData.trip.endDate;
+    } else if (itineraryData.trip.itinerary?.length > 0) {
+      endDate = itineraryData.trip.itinerary[itineraryData.trip.itinerary.length - 1].date;
+    }
+
+    return { coordinates, startDate, endDate };
+  };
+
   // Fetch events from PredictHQ API
   const fetchEvents = async () => {
     setEventsLoading(true);
@@ -89,8 +130,10 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
         throw new Error('PredictHQ API key not found in environment variables');
       }
 
+      const { coordinates, startDate, endDate } = getApiParameters();
+
       const response = await fetch(
-        'https://api.predicthq.com/v1/events/?place.scope=5128581&active.gte=2025-09-20&active.lte=2025-09-27&category=community,festivals&sort=-rank&limit=20',
+        `https://api.predicthq.com/v1/events/?within=5mi@${coordinates}&active.gte=${startDate}&active.lte=${endDate}&category=community,festivals&sort=-rank&limit=20`,
         {
           headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -113,10 +156,10 @@ export function ItineraryView({ itineraryData }: ItineraryViewProps) {
     }
   };
 
-  // Fetch events when component mounts
+  // Fetch events when component mounts or itinerary data changes
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [itineraryData]);
 
   // Show loading state if no itinerary data is available
   if (!itineraryData) {

@@ -135,7 +135,7 @@ def create_plan(trip_request: TripRequest):
         IMPORTANT REQUIREMENTS:
         1. Return ONLY valid JSON, no other text
         2. Include real, researchable locations with actual addresses
-        3. Provide realistic coordinates (lat/lng)
+        3. Provide realistic coordinates (lat/lng) for destination
         4. Schedule activities with realistic timing (9 AM - 9:45 PM)
         5. Include family-friendly activities suitable for all ages in the group
         6. Balance indoor/outdoor activities
@@ -147,6 +147,9 @@ def create_plan(trip_request: TripRequest):
         {{
         "trip": {{
             "destination": "{trip_request.destination}",
+            "coordinates": {{"lat": 40.7831, "lng": -73.9712}},
+            "startDate": {trip_request.startDate},
+            "endDate": {trip_request.endDate},
             "duration": "{duration_days} days",
             "family_members": [
             {{"name": "Adult 1", "age": 35}},
