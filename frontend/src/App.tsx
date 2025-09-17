@@ -1,5 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PLAN_ENDPOINT } from './config';
+import { loadRuntimeConfig } from './runtime-config';
+  // Example: Load runtime config on mount
+  useEffect(() => {
+    loadRuntimeConfig()
+      .then(config => {
+        // You can now use config.VITE_GOOGLE_MAPS_API_KEY, etc.
+        console.log('Loaded runtime config:', config);
+      })
+      .catch(err => {
+        console.error('Failed to load runtime config:', err);
+      });
+  }, []);
 import { TripPlannerForm } from './components/trip-planner-form';
 import { EventsMap } from './components/events-map';
 import { ItineraryView } from './components/itinerary-view';
@@ -60,12 +72,10 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-yellow-50">
       {/* Logo at the top of every page */}
       <Logo />
-      
       {/* Main Content */}
       <main className="pb-16">
         {renderActiveView()}
       </main>
-
       {/* Bottom Navigation */}
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
