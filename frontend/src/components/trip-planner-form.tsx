@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FAMILY_ENDPOINT } from '../config';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AutocompleteInput } from './ui/autocomplete-input';
@@ -35,7 +36,7 @@ export function TripPlannerForm({ onPlanTrip, isLoading = false }: TripPlannerFo
     const fetchFamilyMembers = async () => {
       try {
         // Assuming we're fetching for member ID 1 initially
-        const response = await fetch('http://localhost:8000/family?member_id=1');
+  const response = await fetch(FAMILY_ENDPOINT);
         const data = await response.json();
         
         if (data.family_members) {
